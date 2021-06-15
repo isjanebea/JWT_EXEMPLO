@@ -1,15 +1,45 @@
 
 const jwt = require('jsonwebtoken');
 
+// LEMBRA DE VIRIFICAR DE FAZER A AUTENTICACAO
+const JWTSecret = "asdafwwsdffffssdddsasd"; // aqui pode ser qualquer valor, lembre-se de usar o process.env.JWTSecret diretamente no jwt.sign no lugar da variavel
 
-const auth = (req, res, next) => {
-    const { authorization : authToken } = req.headers;
-    console.log(authToken);
-    next();
+
+const createToken = (req, res) => {
+
+    // fazer a autenticacao
+    // const { id, user, email } = banco.find...
+    const user = {    // objeto que quero passar na autenticacao, que pego do BD
+        id: 1,
+        user: 'bia',
+        email: 'a@emai..com'
+    }
+    const options = { expiresIn: '2h' } // aqui acredito que seja options
+    jwt.sign(user, JWTSecret, options, (err, token) => {
+        if (err) res.status(404)
+        return res.status(200).send({ token, user })
+    })
 }
 
-getAll = (req, res) => res.status(200).send({ mensagem : 'all'})
+
+
+const verifyToken = (req, res, next) => {
+    const { authorization } = req.headers;
+    if (!authorization) return res.status(401).send({ mensagem: 'não autorizado!' })
+    
+    const token = authorization.split(' ')[1];
+
+    jwt.verify(token, JWTSecret, (err, data) => {
+        if (err) return res.status(401).send({mensagem : 'Token Expirada!'});
+        req.loggerUser = data; // dados que foi inserido no token
+        next();
+    })
+
+}
+
+
+
 module.exports = {
-    getAll,
-    auth
+    createToken,
+    verifyToken
 }

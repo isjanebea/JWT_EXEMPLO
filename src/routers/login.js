@@ -1,7 +1,13 @@
-const login = require('../controllers/login.js');
 const router = require('express').Router();
+const auth = require('../controllers/login.js');
 
 
-router.get("/", login.auth, login.getAll);
+
+
+
+
+router.post("/", auth.createToken)
+
+
 
 module.exports = router;
