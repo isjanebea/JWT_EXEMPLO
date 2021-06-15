@@ -23,7 +23,7 @@ const createToken = (req, res) => {
 
 
 
-const verifyToken = (req, res, next) => {
+const verifyToken = (req, res, next) => {  // isso é um middlware
     const { authorization } = req.headers;
     if (!authorization) return res.status(401).send({ mensagem: 'não autorizado!' })
     
@@ -32,7 +32,7 @@ const verifyToken = (req, res, next) => {
     jwt.verify(token, JWTSecret, (err, data) => {
         if (err) return res.status(401).send({mensagem : 'Token Expirada!'});
         req.loggerUser = data; // dados que foi inserido no token
-        next();
+        next(); // aqui chamo a proximo da lista ("rota", middlware, sim pode ter mais de um! vai chamar na ordem dos parametros na router, controller)
     })
 
 }
