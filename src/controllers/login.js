@@ -2,23 +2,47 @@
 const jwt = require('jsonwebtoken');
 
 // LEMBRA DE VIRIFICAR DE FAZER A AUTENTICACAO
-const JWTSecret = "asdafwwsdffffssdddsasd"; // aqui pode ser qualquer valor, lembre-se de usar o process.env.JWTSecret diretamente no jwt.sign no lugar da variavel
+const JWTSecret = "bU8r/lPNLMiXW0rLFwU4a2xKc+qkP780hleqkQ1Y/thXq/tPJumXPxpv2TGXRQ6K7v1E1bDrFjg4Tg082DXZfg=="; // aqui pode ser qualquer valor, lembre-se de usar o process.env.JWTSecret diretamente no jwt.sign no lugar da variavel
+
+const generateToken = (secret, payload) => new Promise((resolve, reject) => {
+ 
+    const options = { 
+        expiresIn: '2h', 
+    } // aqui acredito que seja options
+
+    jwt.sign(payload, secret, options, (err, token) => {
+        if (err) {
+            console.log(err.message)
+            reject(err)
+        } else {
+            console.log("token gerada:\n"+token)
+            resolve(token)
+        }
+    })
+})
 
 
-const createToken = (req, res) => {
+const createToken = async (req, res) => {
 
     // fazer a autenticacao
     // const { id, user, email } = banco.find...
-    const user = {    // objeto que quero passar na autenticacao, que pego do BD
+    const payload = ( Object.keys(req.body).length > 0)? req.body : {    // objeto que quero passar na autenticacao, que pego do BD
         id: 1,
         user: 'bia',
-        email: 'a@emai..com'
+        email: 'janeramerindo@gmail.com'
     }
-    const options = { expiresIn: '2h' } // aqui acredito que seja options
-    jwt.sign(user, JWTSecret, options, (err, token) => {
-        if (err) res.status(404)
-        return res.status(200).send({ token, user })
-    })
+
+    console.log('tentando gerar uma token...')
+    
+    try {
+        const token = await generateToken(JWTSecret, payload)
+        res.status(200).json({
+            token,
+            payload
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.mensagem })
+    }
 }
 
 
